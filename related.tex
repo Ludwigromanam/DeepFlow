@@ -1,0 +1,41 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  New template code for TAMU Theses and Dissertations starting Fall 2012.  
+%  For more info about this template or the 
+%  TAMU LaTeX User's Group, see http://www.howdy.me/.
+%
+%  Author: Wendy Lynn Turner 
+%	 Version 1.0 
+%  Last updated 8/5/2012
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                           SECTION III
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter{\uppercase{Related Work}}
+
+%Traditonal Workflow
+%Data Interpretation
+%Data Visualization
+%Faults Prediction
+%Attributes Computation
+%Execution
+%HPC
+%IO Scalability
+%Ease to use
+
+Tracking in video is one of the most difficult problem in computer vision as many different and varying situations such as varying illumination, change in scene, varying number of targets need to be adressed and solved. A large number of tracking methods have been proposed in literature based on the type of application in the area. Some of those methods are based on object segmentation model, motion model and probabilistic model. Lukas-Kanade [9] tracker finds the appropriate affine transformation for the features found in the local neighborhood of the current frame for a target to the features of the same target in next frame. This tracker has been widely used in literature for estimating the optical flow. Optical flow is one of the successful algorithms to find the match for the local feature of a target between two frames when the target intensity remains consistent and the target moves slowly. [32] used Lucas Kanade optical flow tracker for queue analysis at intersections. Mean shift algorithm [31] is an iterative algorithm for finding the mode of the distribution. This algorithm needs the histogram back projected image and the initial location of the target as input to initialize the tracker. The tracker in the next frame finds the best match for the histogram distribution using Bhattacharya distance. The camshift (Continuously Adaptive Meanshift) [31] applies meanshift first to find the match for the target histogram. Once the mean shift algorithm converges to the best match, Camshift updates the size of the window and fits the best fitting eclipse to the window. Again it applies meanshift over the new search window. In camshift the window size adapts accordingly to the size and the movement of the target.
+
+\pagebreak
+
+Motion based features are sensitive to noise. Thus, most of the motion based approach results in high false alarm rate. The state space approach better handles the multivariate, linear, non-linear and non-Gaussian processes, which thus, is often used in solving tracking problem. The state vector contains all the set of information to describe the system. As a simple example for
+tracking problem, the centroid of the bounding box or object and its velocity along X−direction and Y −direction is the state of the system. The measurement vector represents the set of noisy
+observations that are related to the state vector. [33] used Kalman filter for tracking multi-object. Kalman filter gives a nice Gaussian solution for the location of a target if the problem is linear in nature with added Gaussian noise. It establishes the suitable motion model for tracking. [32] used constant velocity for modeling the vehicle dynamics and estimate the track using Kalman filter. In [34] support vector machine and Kalman filtering are adopted for detection and tracking respectively.
+
+In probabilistic model tracking problems are solved by estimating the state of the object of interest that changes over time using a sequences of noisy measurement [35]. Prokaj, J. and Medioni, G. in [30], however presented the multiple objects tracking approach based on two trackers. The first one is detection based tracker which relies on the background subtraction model and the second one is based on the target state regression tracking, which provides frame to frame tracking. In regression tracker, only the valid samples from the motion models are acquired using regressor. The main advantage of this model is that, it does not incorporate appearance model and handles the stopping target better. However, the use of two trackers in parallel increase the computational time and also as the regressor model is initialized using detector model, tracker may fails if the detector fails to detect some target of interest.
+
+The posterior probability density function of the state of the dynamic system can be computed from the set of available noisy measurements, which can be used to estimate the optimal solution for the new state [35]. The state space model predicts the state of the state and use the measurement model (if available) to update the state from a bunch of noisy predicted state using the Bayes theorem. In [30] authors described the tracking framework in wide area surveillance from the fusion of color and thermal imagery working under the Bayesian framework (particle filtering).
+They defined the state of each pedestrian with its bounding box location and 2D color histogram. Particle filter is computationally expensive but a robust form of tracking which can easily handle the situation even when the system is non-linear and non-Gaussian unlike for Kalman filter. Some of the randomly distributed particles will capture the underlying model and the probability distribution of the target.
+
+In multi-target tracking target arise at the random time and space, exists for the random length of time. It is important to associate the right measurement to right target track. Data association is a major problem in multiple target tracking. One of the methods for associating the data is the greedy nearest neighbor method. For a target it associates the measurement which is closest to the predicted position [32]. [33] also uses the greedy nearest neighbor method for target tracking but also incorporate the area of the track and the measurement in the cost function.

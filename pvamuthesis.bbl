@@ -1,0 +1,141 @@
+\begin{thebibliography}{10}
+
+\bibitem{deeplearning}
+Google Inc., ``{TensorFlow}.''
+  \url{https://www.tensorflow.org/}.
+\newblock [Retrieved: May, 2016].
+
+\bibitem{OpenCV}
+``{OpenCV Online Documentation}.'' \url{https://docs.opencv.org/master/index.html}.
+\newblock [Retrieved: May, 2016].
+
+\bibitem{YOLO}
+``{YOLO: Real-Time Object Detection}.''
+  \url{https://pjreddie.com/darknet/yolo/}.
+\newblock [Retrieved: July, 2016].
+
+\bibitem{OpenTLD}
+``{Tracking-Learning-Detection (TLD)}.''
+  \url{http://info.ee.surrey.ac.uk/Personal/Z.Kalal/tld.html}.
+\newblock [Retrieved: May, 2016].
+
+\bibitem{Tensorbox}
+Russell Stewart, ``{TensorBox is a project for training neural networks to detect objects in images}.''
+  \url{https://github.com/Russell91/TensorBox},
+\newblock [Retrieved: Feb, 2016].
+
+\bibitem{Amidi1996}
+[Amidi, 1996] Amidi, O. (1996). An Autonomous Vision-Guided Helicopter. 
+PhD thesis, Robotics Institute, Carnegie Mellon University.
+
+\bibitem{Amidi1998}
+[Amidi et al., 1998] Amidi, O., Kanade, T., and Fujita, K. (1998). 
+A visual odometer for autonomous helicopter fight. 
+In Proceedings of the Fifth International Conference on Intelligent Autonomous Systems (IAS-5).
+
+\bibitem{Bosse1997l}
+[Bosse, 1997] Bosse, M. (1997). A vision augmented navigation system for an autonomous helicopter. 
+Master’s thesis, Boston University.
+
+\bibitem{LucasKanade}
+[Lucas and Kanade, 1981] Lucas, B. D. and Kanade, T. (1981). An iterative image registration technique with an application to stereovision. 
+In Proc. of the 7th IJCAI, pages 674–679, Vancouver, Canada.
+
+\bibitem{Koen}
+Koen E. A. van de Sande. Jasper R. R. Uijlings. Theo Gevers. Arnold W. M. Smeulders.
+Segmentation as Selective Search for Object Recognition.
+
+
+\bibitem{Conway}
+[Conway, 1995] Conway, A. R. (1995). Autonomous Control of an Unstable Helicopter Using Carrier Phase GPS Only. PhD thesis, Stanford University.
+
+\bibitem{Saripalli}
+[Saripalli et al., 2003a] Saripalli, S., Montgomery, J. F., and Sukhatme, G. S. (2003a). Visually-guided landing of an unmanned aerial vehicle. IEEE Transactions on Robotics and Automation, 19(3):371–381.14
+
+\bibitem{Saripalli}
+[Saripalli et al., 2003b] Saripalli, S., Roberts, J. M., Corke, P. I., Buskey, G., and Sukhatme, G. S. (2003b). A tale of two helicopters. In IEEE/RSJ International Conference on Intelligent Robots and Systems, pages 805–810, Las Vegas, USA.
+
+\bibitem{Montgomery}
+[Montgomery, 2000] Montgomery, J. F. (2000). The usc autonomous flying vehicle (afv) project: Year 2000 status. Technical report, Institute
+for Robotics and Intelligent Systems Technical Report IRIS-00-390,.
+
+\bibitem{Merz}
+[Merz et al., 2004] Merz, T., Duranti, S., and Conte, G. (2004). Autonomous landing of an unmanned helicopter based on vision and inbertial sensing. In International Symposium on Experimental Robotics.
+
+\bibitem{Shakerna}
+[Shakernia et al., 1999] Shakernia, O., Ma, Y., Koo, T. J., and Sastry, S. S. (1999). Landing an unmanned air vehicle:vision based motion
+
+\bibitem{Everingham}
+The PASCAL Visual Object Classes (VOC) Challenge
+Everingham, M., Van Gool, L., Williams, C. K. I., Winn, J. and Zisserman, A. International Journal of Computer Vision, 88(2), 303-338, 2010.
+
+\bibitem{Girshick}
+R. Girshick, “Fast R-CNN,” in IEEE International Conference on Computer Vision (ICCV), 2015.
+
+\bibitem{3527-3532}
+Mejias, Luis, Campoy, Pascual, Usher, Kane, Roberts, Jonathan, \& Corke, Peter. 2006. Two seconds to touchdown-vision-based controlled forced landing. 
+Pages 3527-3532 of: IEEE/RSJ International Conference on Intelligent Robots and Systems. IEEE.
+
+\bibitem{153-161}
+Viola, Paul, Jones, Michael J, \& Snow, Daniel. 2005. Detecting pedestrians using patterns of motion and appearance. 
+International Journal of Computer Vision, 63(2), 153-161.
+
+\bibitem{5776-5783}
+Bills, Cooper, Chen, Joyce, \& Saxena, Ashutosh. 2011. Autonomous MAV fight in indoor environments using single image perspective cues. 
+Pages 5776-5783 of: IEEE international conference on Robotics and automation (ICRA 2011). IEEE
+
+\bibitem{Kalal}
+Z. Kalal, K. Mikolajczyk, and J. Matas, “Tracking-Learning-Detection,” Pattern Analysis and Machine Intelligence 2011
+
+\bibitem{1506.02640}
+J. Redmon, S. Divvala, R. Girshick, and A. Farhadi. You only look once: Unified, real-time object detection. 
+arXiv preprint arXiv:1506.02640, 2015.
+
+
+\bibitem{Sermanet}
+C. Szegedy, W. Liu, Y. Jia, P. Sermanet, S. Reed, D. Anguelov, D. Erhan, V. Vanhoucke, and A. Rabinovich.
+Going deeper with convolutions. In Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition,
+pages 1–9, 2015.
+
+\bibitem{Engel}
+J. Sturm J. Engel and D. Cremers. Accurate Figure Flying with a Quadrocopter Using Onboard Visual and Inertial Sensing. Department of Computer Science,
+Technical University of Munich, Germany, 2012.
+
+\bibitem{}
+S. Soatto T. Lee. Learning and Matching Multiscale Template Descriptors for Real-Time Detection, Localization and Tracking. Department of Computer
+Science, University of California, Los Angeles, 2011.
+
+\bibitem{Garcıa}
+Gines Garcıa Mateos. Refining Face Tracking with Integral Projection. Dept. de Informática y Sistemas, Universidad de Murcia, 2004.
+
+\bibitem{Vyskovsky}
+ Adam Vyskovsky. Object tracking by a flying drone. Bachelor thesis, Charles University, 2014.
+
+\bibitem{Bailey}
+Brenton Bailey. Real Time 3D motion tracking for interactive computer simulations. Imperial College London, 2001.
+
+\bibitem{1186–1193}
+J. Prokaj and G. Medioni, “Persistent tracking for wide area aerial surveillance,” in Computer Vision and Pattern Recognition (CVPR), 2014 IEEE Conference on, June 2014, pp. 
+1186–1193.
+
+\bibitem{1082122}
+J. G. Allen, R. Y. D. Xu, and J. S. Jin, “Object tracking using camshift algorithm and multiple quantized feature spaces,” in Proceedings of the Pan-Sydney
+Area Workshop on Visual Information Processing, ser. VIP ’05. Darlinghurst, Australia, Australia: Australian Computer Society, Inc., 2004, pp. 3–7. [Online]. 
+Available: \url{http://dl.acm.org/citation.cfm?id=1082121.1082122}
+
+
+\bibitem{Shirazi}
+M. S. Shirazi and B. Morris, “Vision-based vehicle queue analysis at junctions,” in Advanced Video and Signal Based Surveillance (AVSS), 2015 12th IEEE International Conference on,
+Aug 2015, pp. 1–6
+
+\bibitem{1862–1866}
+X. Li, K. Wang, W. Wang, and Y. Li, “A multiple object tracking method using kalman filter,” in Information and Automation (ICIA), 2010 IEEE International Conference on, June 2010,
+pp. 1862–1866.
+
+\bibitem{Fujimura}
+ F. Xu, X. Liu, and K. Fujimura, “Pedestrian detection and tracking with night vision,” Intelligent Transportation Systems, IEEE Transactions on, vol. 6, no. 1, pp. 63–71, March 2005.
+
+\bibitem{Arulampalam}
+M. Arulampalam, S. Maskell, N. Gordon, and T. Clapp, “A tutorial on particle filters for online nonlinear/non-gaussian bayesian tracking,” pp. 174–188, Feb 2002.
+
+\end{thebibliography}

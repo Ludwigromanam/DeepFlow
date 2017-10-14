@@ -1,0 +1,38 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  New template code for TAMU Theses and Dissertations starting Fall 2012.  
+%  For more info about this template or the 
+%  TAMU LaTeX User's Group, see http://www.howdy.me/.
+%
+%  Author: Wendy Lynn Turner 
+%	 Version 1.0 
+%  Last updated 8/5/2012
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                           ABSTRACT 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\chapter*{ABSTRACT}
+\addcontentsline{toc}{chapter}{ABSTRACT} % Needs to be set to part, so the TOC doesnt add 'CHAPTER ' prefix in the TOC.
+
+\thispagestyle{plain} % No headers, just page numbers
+\pagenumbering{roman} % Roman numerals
+\setcounter{page}{3}
+
+\begin{center}
+\pvamumanuscripttitle
+
+\pvamugradmonth \hspace{2pt} \pvamugradyear
+
+\pvamufullname, B.S., Benedict College
+
+Chair of Advisory Committee: Dr. Lijun Qian
+
+\par\end{center}
+
+\indent Computer vision tasks such as image classification, object detection, and object tracking have been difficult and expensive tasks for machines to perform. Therefore, it has been an active research field for decades which has led to massive improvements in performance while using  current-gen machines. As a result today, computer vision can be massively integrated into robotics and automation (from simple cameras, to UAVs, to Cars, etc.) allowing us to perform these tasks in real time.  A clear example  is YOLO a fast and accurate object identification system implemented using CUDA taking advantage of GPU computing power available today to process video streaming in real time. 
+
+In this thesis, We have implemented DeepFlow, an object detection and tracking system based on YOLO using TensorFlow, an open source library that is based on a neural network system that  can relate several data on the network simultaneously, in the same way as the human brain does. Tensorflow is developed by Google and will be used in this project due to its very popular image recognition engine.  Our goal is to design and implement a suitable method for autonomous object detection and tracking using a smart drone. In our case, a 3DR SOLOcwith an onboard GoPro camera will be used. We will study and discuss  different methods of image processing and subsequent object tracking in a video stream used for implementing DeepFlow.
+ 
+\pagebreak{}

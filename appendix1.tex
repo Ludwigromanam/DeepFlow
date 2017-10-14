@@ -1,0 +1,812 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  New template code for TAMU Theses and Dissertations starting Fall 2012.  
+%  For more info about this template or the 
+%  TAMU LaTeX User's Group, see http://www.howdy.me/.
+%
+%  Author: Wendy Lynn Turner 
+%	 Version 1.0 
+%  Last updated 8/5/2012
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                           APPENDIX A 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\phantomsection
+
+\chapter{\uppercase{Code Implementation}}
+
+\begin{lstlisting}
+//inference.py
+import inspect
+import tensorflow as tf
+import tensorflow.contrib.slim as slim
+from ..yolo.function import leaky_relu
+from .function import reorg
+
+
+def tiny(net, classes, num_anchors, training=False, center=True):
+    def batch_norm(net):
+        net = slim.batch_norm(net, center=center, scale=True, epsilon=1e-5, is_training=training)
+        if not center:
+            net = tf.nn.bias_add(net, slim.variable('biases', shape=[tf.shape(net)[-1]], initializer=tf.zeros_initializer()))
+        return net
+    scope = __name__.split('.')[-2] + '_' + inspect.stack()[0][3]
+    net = tf.identity(net, name='%s/input' % scope)
+    with slim.arg_scope([slim.layers.conv2d], kernel_size=[3, 3], weights_initializer=tf.truncated_normal_initializer(stddev=0.1), normalizer_fn=batch_norm, activation_fn=leaky_relu), slim.arg_scope([slim.layers.max_pool2d], kernel_size=[2, 2], padding='SAME'):
+        index = 0
+        channels = 16
+        for _ in range(5):
+            net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+            net = slim.layers.max_pool2d(net, scope='%s/max_pool%d' % (scope, index))
+            index += 1
+            channels *= 2
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        net = slim.layers.max_pool2d(net, stride=1, scope='%s/max_pool%d' % (scope, index))
+        index += 1
+        channels *= 2
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+    net = slim.layers.conv2d(net, num_anchors * (5 + classes), kernel_size=[1, 1], activation_fn=None, scope='%s/conv' % scope)
+    net = tf.identity(net, name='%s/output' % scope)
+    return scope, net
+
+TINY_DOWNSAMPLING = (2 ** 5, 2 ** 5)
+
+
+def _tiny(net, classes, num_anchors, training=False):
+    return tiny(net, classes, num_anchors, training, False)
+
+_TINY_DOWNSAMPLING = (2 ** 5, 2 ** 5)
+
+
+def darknet(net, classes, num_anchors, training=False, center=True):
+    def batch_norm(net):
+        net = slim.batch_norm(net, center=center, scale=True, epsilon=1e-5, is_training=training)
+        if not center:
+            net = tf.nn.bias_add(net, slim.variable('biases', shape=[tf.shape(net)[-1]], initializer=tf.zeros_initializer()))
+        return net
+    scope = __name__.split('.')[-2] + '_' + inspect.stack()[0][3]
+    net = tf.identity(net, name='%s/input' % scope)
+    with slim.arg_scope([slim.layers.conv2d], kernel_size=[3, 3], normalizer_fn=batch_norm, activation_fn=leaky_relu), slim.arg_scope([slim.layers.max_pool2d], kernel_size=[2, 2], padding='SAME'):
+        index = 0
+        channels = 32
+        for _ in range(2):
+            net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+            net = slim.layers.max_pool2d(net, scope='%s/max_pool%d' % (scope, index))
+            index += 1
+            channels *= 2
+        for _ in range(2):
+            net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+            index += 1
+            net = slim.layers.conv2d(net, channels / 2, kernel_size=[1, 1], scope='%s/conv%d' % (scope, index))
+            index += 1
+            net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+            net = slim.layers.max_pool2d(net, scope='%s/max_pool%d' % (scope, index))
+            index += 1
+            channels *= 2
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels / 2, kernel_size=[1, 1], scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels / 2, kernel_size=[1, 1], scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        passthrough = tf.identity(net, name=scope + '/passthrough')
+        net = slim.layers.max_pool2d(net, scope='%s/max_pool%d' % (scope, index))
+        index += 1
+        channels *= 2
+        # downsampling finished
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels / 2, kernel_size=[1, 1], scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels / 2, kernel_size=[1, 1], scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        index += 1
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+        index += 1
+        with tf.name_scope(scope):
+            _net = reorg(passthrough)
+        net = tf.concat([_net, net], 3, name='%s/concat%d' % (scope, index))
+        net = slim.layers.conv2d(net, channels, scope='%s/conv%d' % (scope, index))
+    net = slim.layers.conv2d(net, num_anchors * (5 + classes), kernel_size=[1, 1], activation_fn=None, scope='%s/conv' % scope)
+    net = tf.identity(net, name='%s/output' % scope)
+    return scope, net
+
+DARKNET_DOWNSAMPLING = (2 ** 5, 2 ** 5)
+
+
+def _darknet(net, classes, num_anchors, training=False):
+    return darknet(net, classes, num_anchors, training, False)
+
+_DARKNET_DOWNSAMPLING = (2 ** 5, 2 ** 5)
+
+\end{lstlisting}
+
+\pagebreak
+\begin{lstlisting}
+//functions.py
+import numpy as np
+import tensorflow as tf
+
+
+def reorg(net, stride=2, name='reorg'):
+    batch_size, height, width, channels = net.get_shape().as_list()
+    _height, _width, _channel = height // stride, width // stride, channels * stride * stride
+    with tf.name_scope(name) as name:
+        net = tf.reshape(net, [batch_size, _height, stride, _width, stride, channels])
+        net = tf.transpose(net, [0, 1, 3, 2, 4, 5]) # batch_size, _height, _width, stride, stride, channels
+        net = tf.reshape(net, [batch_size, _height, _width, -1], name=name)
+    return net
+
+
+def main():
+    image = [
+        (0, 1, 0, 1),
+        (2, 3, 2, 3),
+        (0, 1, 0, 1),
+        (2, 3, 2, 3),
+    ]
+    image = np.expand_dims(image, 0)
+    image = np.expand_dims(image, -1)
+    with tf.Session() as sess:
+        ph_image = tf.placeholder(tf.uint8, image.shape)
+        images = sess.run(reorg(ph_image), feed_dict={ph_image: image})
+    for i, image in enumerate(np.transpose(images[0], [2, 0, 1])):
+        data = np.unique(image)
+        assert len(data) == 1
+        assert data[0] == i
+
+if __name__ == '__main__':
+    main()
+\end{lstlisting}
+
+\pagebreak
+\begin{lstlisting}
+//preprocess.py
+import inspect
+import numpy as np
+import tensorflow as tf
+
+
+def per_image_standardization(image):
+    stddev = np.std(image)
+    return (image - np.mean(image)) / max(stddev, 1.0 / np.sqrt(np.multiply.reduce(image.shape)))
+
+
+def random_crop(image, objects_coord, width_height, scale=1):
+    assert 0 < scale <= 1
+    section = inspect.stack()[0][3]
+    with tf.name_scope(section):
+        xy_min = tf.reduce_min(objects_coord[:, :2], 0)
+        xy_max = tf.reduce_max(objects_coord[:, 2:], 0)
+        margin = width_height - xy_max
+        shrink = tf.random_uniform([4], maxval=scale) * tf.concat([xy_min, margin], 0)
+        _xy_min = shrink[:2]
+        _wh = width_height - shrink[2:] - _xy_min
+        objects_coord = objects_coord - tf.tile(_xy_min, [2])
+        _xy_min_ = tf.cast(_xy_min, tf.int32)
+        _wh_ = tf.cast(_wh, tf.int32)
+        image = tf.image.crop_to_bounding_box(image, _xy_min_[1], _xy_min_[0], _wh_[1], _wh_[0])
+    return image, objects_coord, _wh
+
+
+def flip_horizontally(image, objects_coord, width):
+    section = inspect.stack()[0][3]
+    with tf.name_scope(section):
+        image = tf.image.flip_left_right(image)
+        xmin, ymin, xmax, ymax = objects_coord[:, 0:1], objects_coord[:, 1:2], objects_coord[:, 2:3], objects_coord[:, 3:4]
+        objects_coord = tf.concat([width - xmax, ymin, width - xmin, ymax], 1)
+    return image, objects_coord
+
+
+def random_flip_horizontally(image, objects_coord, width, probability=0.5):
+    section = inspect.stack()[0][3]
+    with tf.name_scope(section):
+        pred = tf.random_uniform([]) < probability
+        fn1 = lambda: flip_horizontally(image, objects_coord, width)
+        fn2 = lambda: (image, objects_coord)
+        return tf.cond(pred, fn1, fn2)
+
+
+def random_grayscale(image, probability=0.5):
+    if probability <= 0:
+        return image
+    section = inspect.stack()[0][3]
+    with tf.name_scope(section):
+        pred = tf.random_uniform([]) < probability
+        fn1 = lambda: tf.tile(tf.image.rgb_to_grayscale(image), [1] * (len(image.get_shape()) - 1) + [3])
+        fn2 = lambda: image
+        return tf.cond(pred, fn1, fn2)
+
+\end{lstlisting}
+
+
+\pagebreak
+\begin{lstlisting}
+//postprocess.py
+import numpy as np
+
+
+def iou(xy_min1, xy_max1, xy_min2, xy_max2):
+    assert(not np.isnan(xy_min1).any())
+    assert(not np.isnan(xy_max1).any())
+    assert(not np.isnan(xy_min2).any())
+    assert(not np.isnan(xy_max2).any())
+    assert np.all(xy_min1 <= xy_max1)
+    assert np.all(xy_min2 <= xy_max2)
+    areas1 = np.multiply.reduce(xy_max1 - xy_min1)
+    areas2 = np.multiply.reduce(xy_max2 - xy_min2)
+    _xy_min = np.maximum(xy_min1, xy_min2) 
+    _xy_max = np.minimum(xy_max1, xy_max2)
+    _wh = np.maximum(_xy_max - _xy_min, 0)
+    _areas = np.multiply.reduce(_wh)
+    assert _areas <= areas1
+    assert _areas <= areas2
+    return _areas / np.maximum(areas1 + areas2 - _areas, 1e-10)
+
+
+def non_max_suppress(conf, xy_min, xy_max, threshold, threshold_iou):
+    _, _, classes = conf.shape
+    boxes = [(_conf, _xy_min, _xy_max) for _conf, _xy_min, _xy_max in zip(conf.reshape(-1, classes), xy_min.reshape(-1, 2), xy_max.reshape(-1, 2))]
+    for c in range(classes):
+        boxes.sort(key=lambda box: box[0][c], reverse=True)
+        for i in range(len(boxes) - 1):
+            box = boxes[i]
+            if box[0][c] <= threshold:
+                continue
+            for _box in boxes[i + 1:]:
+                if iou(box[1], box[2], _box[1], _box[2]) >= threshold_iou:
+                    _box[0][c] = 0
+    return boxes
+
+
+\end{lstlisting}
+
+
+\pagebreak
+\begin{lstlisting}
+//visualize.py
+import itertools
+import numpy as np
+import matplotlib.pyplot as plt
+import matplotlib.patches as patches
+
+
+def draw_labels(ax, names, width, height, cell_width, cell_height, mask, prob, coords, xy_min, xy_max, areas, rtol=1e-3):
+    colors = [prop['color'] for _, prop in zip(names, itertools.cycle(plt.rcParams['axes.prop_cycle']))]
+    plots = []
+    for i, (_mask, _prob, _coords, _xy_min, _xy_max, _areas) in enumerate(zip(mask, prob, coords, xy_min, xy_max, areas)):
+        _mask = _mask.reshape([])
+        _coords = _coords.reshape([-1])
+        if np.any(_mask) > 0:
+            index = np.argmax(_prob)
+            iy = i // cell_width
+            ix = i % cell_width
+            plots.append(ax.add_patch(patches.Rectangle((ix * width / cell_width, iy * height / cell_height), width / cell_width, height / cell_height, linewidth=0, facecolor=colors[index], alpha=.2)))
+            #check coords
+            offset_x, offset_y, _w_sqrt, _h_sqrt = _coords
+            cell_x, cell_y = ix + offset_x, iy + offset_y
+            x, y = cell_x * width / cell_width, cell_y * height / cell_height
+            _w, _h = _w_sqrt * _w_sqrt, _h_sqrt * _h_sqrt
+            w, h = _w * width, _h * height
+            x_min, y_min = x - w / 2, y - h / 2
+            plots.append(ax.add_patch(patches.Rectangle((x_min, y_min), w, h, linewidth=1, edgecolor=colors[index], facecolor='none')))
+            plots.append(ax.annotate(names[index], (x_min, y_min), color=colors[index]))
+            #check offset_xy_min and xy_max
+            wh = _xy_max - _xy_min
+            assert np.all(wh >= 0)
+            np.testing.assert_allclose(wh / [cell_width, cell_height], [[_w, _h]], rtol=rtol)
+            np.testing.assert_allclose(_xy_min + wh / 2, [[offset_x, offset_y]], rtol=rtol)
+    return plots
+
+
+\end{lstlisting}
+
+\pagebreak
+\begin{lstlisting}
+//cache.py
+import os
+import argparse
+import configparser
+import shutil
+import importlib
+import pandas as pd
+import tensorflow as tf
+import utils
+
+
+def main():
+    cachedir = utils.get_cachedir(config)
+    os.makedirs(cachedir, exist_ok=True)
+    path = os.path.join(cachedir, 'names')
+    shutil.copyfile(os.path.expanduser(os.path.expandvars(config.get('cache', 'names'))), path)
+    with open(path, 'r') as f:
+        names = [line.strip() for line in f]
+    name_index = dict([(name, i) for i, name in enumerate(names)])
+    datasets = [(os.path.basename(os.path.splitext(path)[0]), pd.read_csv(os.path.expanduser(os.path.expandvars(path)), sep='\t')) for path in config.get('cache', 'datasets').split(':')]
+    module = importlib.import_module('utils.data.cache')
+    for profile in args.profile:
+        path = os.path.join(cachedir, profile + '.tfrecord')
+        tf.logging.info('write tfrecords file: ' + path)
+        with tf.python_io.TFRecordWriter(path) as writer:
+            for name, dataset in datasets:
+                tf.logging.info('loading %s %s dataset' % (name, profile))
+                func = getattr(module, name)
+                for i, row in dataset.iterrows():
+                    tf.logging.info('loading data %d (%s)' % (i, ', '.join([k + '=' + str(v) for k, v in row.items()])))
+                    func(writer, name_index, profile, row, args.verify)
+    tf.logging.info('%s data are saved into %s' % (str(args.profile), cachedir))
+
+
+def make_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', nargs='+', default=['config.ini'], help='config file')
+    parser.add_argument('-p', '--profile', nargs='+', default=['train', 'val', 'test'])
+    parser.add_argument('-v', '--verify', action='store_true')
+    parser.add_argument('--level', default='info', help='logging level')
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    args = make_args()
+    config = configparser.ConfigParser()
+    utils.load_config(config, args.config)
+    if args.level:
+        tf.logging.set_verbosity(args.level.upper())
+    with tf.Session() as sess:
+        main()
+
+
+\end{lstlisting}
+
+\pagebreak
+\begin{lstlisting}
+//parse_yolov2.py
+import os
+import re
+import time
+import shutil
+import argparse
+import configparser
+import operator
+import itertools
+import struct
+import numpy as np
+import pandas as pd
+import tensorflow as tf
+import model.yolo2.inference as inference
+import utils
+
+
+def transpose_weights(weights, num_anchors):
+    ksize1, ksize2, channels_in, _ = weights.shape
+    weights = weights.reshape([ksize1, ksize2, channels_in, num_anchors, -1])
+    coords = weights[:, :, :, :, 0:4]
+    iou = np.expand_dims(weights[:, :, :, :, 4], -1)
+    classes = weights[:, :, :, :, 5:]
+    return np.concatenate([iou, coords, classes], -1).reshape([ksize1, ksize2, channels_in, -1])
+
+
+def transpose_biases(biases, num_anchors):
+    biases = biases.reshape([num_anchors, -1])
+    coords = biases[:, 0:4]
+    iou = np.expand_dims(biases[:, 4], -1)
+    classes = biases[:, 5:]
+    return np.concatenate([iou, coords, classes], -1).reshape([-1])
+
+
+def transpose(sess, layer, num_anchors):
+    v = next(filter(lambda v: v.op.name.endswith('weights'), layer))
+    sess.run(v.assign(transpose_weights(sess.run(v), num_anchors)))
+    v = next(filter(lambda v: v.op.name.endswith('biases'), layer))
+    sess.run(v.assign(transpose_biases(sess.run(v), num_anchors)))
+
+
+def main():
+    model = config.get('config', 'model')
+    cachedir = utils.get_cachedir(config)
+    with open(os.path.join(cachedir, 'names'), 'r') as f:
+        names = [line.strip() for line in f]
+    width, height = np.array(utils.get_downsampling(config)) * 13
+    anchors = pd.read_csv(os.path.expanduser(os.path.expandvars(config.get(model, 'anchors'))), sep='\t').values
+    func = getattr(inference, config.get(model, 'inference'))
+    with tf.Session() as sess:
+        image = tf.placeholder(tf.float32, [1, height, width, 3], name='image')
+        func(image, len(names), len(anchors))
+        tf.contrib.framework.get_or_create_global_step()
+        tf.global_variables_initializer().run()
+        prog = re.compile(r'[_\w\d]+\/conv(\d*)\/(weights|biases|(BatchNorm\/(gamma|beta|moving_mean|moving_variance)))$')
+        variables = [(prog.match(v.op.name).group(1), v) for v in tf.global_variables() if prog.match(v.op.name)]
+        variables = sorted([[int(k) if k else -1, [v for _, v in g]] for k, g in itertools.groupby(variables, operator.itemgetter(0))], key=operator.itemgetter(0))
+        assert variables[0][0] == -1
+        variables[0][0] = len(variables) - 1
+        variables.insert(len(variables), variables.pop(0))
+        with tf.name_scope('assign'):
+            with open(os.path.expanduser(os.path.expandvars(args.file)), 'rb') as f:
+                major, minor, revision, seen = struct.unpack('4i', f.read(16))
+                tf.logging.info('major=%d, minor=%d, revision=%d, seen=%d' % (major, minor, revision, seen))
+                for i, layer in variables:
+                    tf.logging.info('processing layer %d' % i)
+                    total = 0
+                    for suffix in ['biases', 'beta', 'gamma', 'moving_mean', 'moving_variance', 'weights']:
+                        try:
+                            v = next(filter(lambda v: v.op.name.endswith(suffix), layer))
+                        except StopIteration:
+                            continue
+                        shape = v.get_shape().as_list()
+                        cnt = np.multiply.reduce(shape)
+                        total += cnt
+                        tf.logging.info('%s: %s=%d' % (v.op.name, str(shape), cnt))
+                        p = struct.unpack('%df' % cnt, f.read(4 * cnt))
+                        if suffix == 'weights':
+                            ksize1, ksize2, channels_in, channels_out = shape
+                            p = np.reshape(p, [channels_out, channels_in, ksize1, ksize2]) # Darknet format
+                            p = np.transpose(p, [2, 3, 1, 0]) # TensorFlow format (ksize1, ksize2, channels_in, channels_out)
+                        sess.run(v.assign(p))
+                    tf.logging.info('%d parameters assigned' % total)
+                remaining = os.fstat(f.fileno()).st_size - f.tell()
+            transpose(sess, layer, len(anchors))
+        saver = tf.train.Saver()
+        logdir = utils.get_logdir(config)
+        if args.delete:
+            tf.logging.warn('delete logging directory: ' + logdir)
+            shutil.rmtree(logdir, ignore_errors=True)
+        os.makedirs(logdir, exist_ok=True)
+        model_path = os.path.join(logdir, 'model.ckpt')
+        tf.logging.info('save model into ' + model_path)
+        saver.save(sess, model_path)
+        if args.summary:
+            path = os.path.join(logdir, args.logname)
+            summary_writer = tf.summary.FileWriter(path)
+            summary_writer.add_graph(sess.graph)
+            tf.logging.info('tensorboard --logdir ' + logdir)
+    if remaining > 0:
+        tf.logging.warn('%d bytes remaining' % remaining)
+
+
+def make_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('file', help='Darknet .weights file')
+    parser.add_argument('-c', '--config', nargs='+', default=['config.ini'], help='config file')
+    parser.add_argument('-d', '--delete', action='store_true', help='delete logdir')
+    parser.add_argument('-s', '--summary', action='store_true')
+    parser.add_argument('--logname', default=time.strftime('%Y-%m-%d_%H-%M-%S'), help='the name of TensorBoard log')
+    parser.add_argument('--level', default='info', help='logging level')
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    args = make_args()
+    config = configparser.ConfigParser()
+    utils.load_config(config, args.config)
+    if args.level:
+        tf.logging.set_verbosity(args.level.upper())
+    main()
+
+\end{lstlisting}
+
+\pagebreak
+\begin{lstlisting}
+//data_augmentation.py
+import os
+import argparse
+import configparser
+import multiprocessing
+import numpy as np
+import matplotlib.pyplot as plt
+import tensorflow as tf
+import utils.data
+import utils.visualize
+
+
+def main():
+    model = config.get('config', 'model')
+    cachedir = utils.get_cachedir(config)
+    with open(os.path.join(cachedir, 'names'), 'r') as f:
+        names = [line.strip() for line in f]
+    width = config.getint(model, 'width')
+    height = config.getint(model, 'height')
+    cell_width, cell_height = utils.calc_cell_width_height(config, width, height)
+    tf.logging.info('(width, height)=(%d, %d), (cell_width, cell_height)=(%d, %d)' % (width, height, cell_width, cell_height))
+    batch_size = args.rows * args.cols
+    paths = [os.path.join(cachedir, profile + '.tfrecord') for profile in args.profile]
+    num_examples = sum(sum(1 for _ in tf.python_io.tf_record_iterator(path)) for path in paths)
+    tf.logging.warn('num_examples=%d' % num_examples)
+    with tf.Session() as sess:
+        with tf.name_scope('batch'):
+            image_rgb, labels = utils.data.load_image_labels(paths, len(names), width, height, cell_width, cell_height, config)
+            batch = tf.train.shuffle_batch((tf.cast(image_rgb, tf.uint8),) + labels, batch_size=batch_size,
+                capacity=config.getint('queue', 'capacity'), min_after_dequeue=config.getint('queue', 'min_after_dequeue'), num_threads=multiprocessing.cpu_count()
+            )
+        tf.global_variables_initializer().run()
+        coord = tf.train.Coordinator()
+        threads = tf.train.start_queue_runners(sess, coord)
+        batch_image, batch_labels = sess.run([batch[0], batch[1:]])
+        coord.request_stop()
+        coord.join(threads)
+    batch_image = batch_image.astype(np.uint8)
+    fig, axes = plt.subplots(args.rows, args.cols)
+    for b, (ax, image) in enumerate(zip(axes.flat, batch_image)):
+        ax.imshow(image)
+        utils.visualize.draw_labels(ax, names, width, height, cell_width, cell_height, *[l[b] for l in batch_labels])
+        if args.grid:
+            ax.set_xticks(np.arange(0, width, width / cell_width))
+            ax.set_yticks(np.arange(0, height, height / cell_height))
+            ax.grid(which='both')
+            ax.tick_params(labelbottom='off', labelleft='off')
+        else:
+            ax.set_xticks([])
+            ax.set_yticks([])
+    fig.tight_layout()
+    plt.show()
+
+
+def make_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', nargs='+', default=['config.ini'], help='config file')
+    parser.add_argument('-p', '--profile', nargs='+', default=['train', 'val'])
+    parser.add_argument('-g', '--grid', action='store_true')
+    parser.add_argument('--rows', default=5, type=int)
+    parser.add_argument('--cols', default=5, type=int)
+    parser.add_argument('--level', default='info', help='logging level')
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    args = make_args()
+    config = configparser.ConfigParser()
+    utils.load_config(config, args.config)
+    if args.level:
+        tf.logging.set_verbosity(args.level.upper())
+    main()
+\end{lstlisting}
+
+\pagebreak
+\begin{lstlisting}
+//train.py
+import os
+import argparse
+import configparser
+import importlib
+import shutil
+import time
+import inspect
+import multiprocessing
+import tensorflow as tf
+import tensorflow.contrib.slim as slim
+import utils.data
+
+
+def summary_scalar(config):
+    try:
+        reduce = eval(config.get('summary', 'scalar_reduce'))
+        for t in utils.match_tensor(config.get('summary', 'scalar')):
+            name = t.op.name
+            if len(t.get_shape()) > 0:
+                t = reduce(t)
+                tf.logging.warn(name + ' is not a scalar tensor, reducing by ' + reduce.__name__)
+            tf.summary.scalar(name, t)
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        tf.logging.warn(inspect.stack()[0][3] + ' disabled')
+
+
+def summary_image(config):
+    try:
+        for t in utils.match_tensor(config.get('summary', 'image')):
+            name = t.op.name
+            channels = t.get_shape()[-1].value
+            if channels not in (1, 3, 4):
+                t = tf.expand_dims(tf.reduce_sum(t, -1), -1)
+            tf.summary.image(name, t, config.getint('summary', 'image_max'))
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        tf.logging.warn(inspect.stack()[0][3] + ' disabled')
+
+
+def summary_histogram(config):
+    try:
+        for t in utils.match_tensor(config.get('summary', 'histogram')):
+            tf.summary.histogram(t.op.name, t)
+    except (configparser.NoSectionError, configparser.NoOptionError):
+        tf.logging.warn(inspect.stack()[0][3] + ' disabled')
+
+
+def summary(config):
+    summary_scalar(config)
+    summary_image(config)
+    summary_histogram(config)
+
+
+def get_optimizer(config, name):
+    section = 'optimizer_' + name
+    return {
+        'adam': lambda learning_rate: tf.train.AdamOptimizer(learning_rate, config.getfloat(section, 'beta1'), config.getfloat(section, 'beta2'), config.getfloat(section, 'epsilon')),
+        'adadelta': lambda learning_rate: tf.train.AdadeltaOptimizer(learning_rate, config.getfloat(section, 'rho'), config.getfloat(section, 'epsilon')),
+        'adagrad': lambda learning_rate: tf.train.AdagradOptimizer(learning_rate, config.getfloat(section, 'initial_accumulator_value')),
+        'momentum': lambda learning_rate: tf.train.MomentumOptimizer(learning_rate, config.getfloat(section, 'momentum')),
+        'rmsprop': lambda learning_rate: tf.train.RMSPropOptimizer(learning_rate, config.getfloat(section, 'decay'), config.getfloat(section, 'momentum'), config.getfloat(section, 'epsilon')),
+        'ftrl': lambda learning_rate: tf.train.FtrlOptimizer(learning_rate, config.getfloat(section, 'learning_rate_power'), config.getfloat(section, 'initial_accumulator_value'), config.getfloat(section, 'l1_regularization_strength'), config.getfloat(section, 'l2_regularization_strength')),
+        'gd': lambda learning_rate: tf.train.GradientDescentOptimizer(learning_rate),
+    }[name]
+
+
+def main():
+    model = config.get('config', 'model')
+    logdir = utils.get_logdir(config)
+    if args.delete:
+        tf.logging.warn('delete logging directory: ' + logdir)
+        shutil.rmtree(logdir, ignore_errors=True)
+    cachedir = utils.get_cachedir(config)
+    with open(os.path.join(cachedir, 'names'), 'r') as f:
+        names = [line.strip() for line in f]
+    width = config.getint(model, 'width')
+    height = config.getint(model, 'height')
+    cell_width, cell_height = utils.calc_cell_width_height(config, width, height)
+    tf.logging.warn('(width, height)=(%d, %d), (cell_width, cell_height)=(%d, %d)' % (width, height, cell_width, cell_height))
+    yolo = importlib.import_module('model.' + model)
+    paths = [os.path.join(cachedir, profile + '.tfrecord') for profile in args.profile]
+    num_examples = sum(sum(1 for _ in tf.python_io.tf_record_iterator(path)) for path in paths)
+    tf.logging.warn('num_examples=%d' % num_examples)
+    with tf.name_scope('batch'):
+        image_rgb, labels = utils.data.load_image_labels(paths, len(names), width, height, cell_width, cell_height, config)
+        with tf.name_scope('per_image_standardization'):
+            image_std = tf.image.per_image_standardization(image_rgb)
+        batch = tf.train.shuffle_batch((image_std,) + labels, batch_size=args.batch_size,
+            capacity=config.getint('queue', 'capacity'), min_after_dequeue=config.getint('queue', 'min_after_dequeue'),
+            num_threads=multiprocessing.cpu_count()
+        )
+    global_step = tf.contrib.framework.get_or_create_global_step()
+    builder = yolo.Builder(args, config)
+    builder(batch[0], training=True)
+    with tf.name_scope('total_loss') as name:
+        builder.create_objectives(batch[1:])
+        total_loss = tf.losses.get_total_loss(name=name)
+    variables_to_restore = slim.get_variables_to_restore(exclude=args.exclude)
+    with tf.name_scope('optimizer'):
+        try:
+            decay_steps = config.getint('exponential_decay', 'decay_steps')
+            decay_rate = config.getfloat('exponential_decay', 'decay_rate')
+            staircase = config.getboolean('exponential_decay', 'staircase')
+            learning_rate = tf.train.exponential_decay(args.learning_rate, global_step, decay_steps, decay_rate, staircase=staircase)
+            tf.logging.warn('using a learning rate start from %f with exponential decay (decay_steps=%d, decay_rate=%f, staircase=%d)' % (args.learning_rate, decay_steps, decay_rate, staircase))
+        except (configparser.NoSectionError, configparser.NoOptionError):
+            learning_rate = args.learning_rate
+            tf.logging.warn('using a staionary learning rate %f' % args.learning_rate)
+        optimizer = get_optimizer(config, args.optimizer)(learning_rate)
+        tf.logging.warn('optimizer=' + args.optimizer)
+        train_op = slim.learning.create_train_op(total_loss, optimizer, global_step,
+            clip_gradient_norm=args.gradient_clip, summarize_gradients=config.getboolean('summary', 'gradients'),
+        )
+    if args.transfer:
+        path = os.path.expanduser(os.path.expandvars(args.transfer))
+        tf.logging.warn('transferring from ' + path)
+        init_assign_op, init_feed_dict = slim.assign_from_checkpoint(path, variables_to_restore)
+        def init_fn(sess):
+            sess.run(init_assign_op, init_feed_dict)
+            tf.logging.warn('transferring from global_step=%d, learning_rate=%f' % sess.run((global_step, learning_rate)))
+    else:
+        init_fn = lambda sess: tf.logging.warn('global_step=%d, learning_rate=%f' % sess.run((global_step, learning_rate)))
+    summary(config)
+    tf.logging.warn('tensorboard --logdir ' + logdir)
+    slim.learning.train(train_op, logdir, master=args.master, is_chief=(args.task == 0),
+        global_step=global_step, number_of_steps=args.steps, init_fn=init_fn,
+        summary_writer=tf.summary.FileWriter(os.path.join(logdir, args.logname)),
+        save_summaries_secs=args.summary_secs, save_interval_secs=args.save_secs
+    )
+
+
+def make_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', nargs='+', default=['config.ini'], help='config file')
+    parser.add_argument('-t', '--transfer', help='transferring model from a .ckpt file')
+    parser.add_argument('-e', '--exclude', nargs='+', help='exclude variables while transferring')
+    parser.add_argument('-p', '--profile', nargs='+', default=['train', 'val'])
+    parser.add_argument('-s', '--steps', type=int, default=None, help='max number of steps')
+    parser.add_argument('-d', '--delete', action='store_true', help='delete logdir')
+    parser.add_argument('-b', '--batch_size', default=8, type=int, help='batch size')
+    parser.add_argument('-o', '--optimizer', default='adam')
+    parser.add_argument('-n', '--logname', default=time.strftime('%Y-%m-%d_%H-%M-%S'), help='the name for TensorBoard')
+    parser.add_argument('-g', '--gradient_clip', default=0, type=float, help='gradient clip')
+    parser.add_argument('-lr', '--learning_rate', default=1e-6, type=float, help='learning rate')
+    parser.add_argument('--seed', type=int, default=None)
+    parser.add_argument('--summary_secs', default=30, type=int, help='seconds to save summaries')
+    parser.add_argument('--save_secs', default=600, type=int, help='seconds to save model')
+    parser.add_argument('--level', help='logging level')
+    parser.add_argument('--master', default='', help='master address')
+    parser.add_argument('--task', type=int, default=0, help='task ID')
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    args = make_args()
+    config = configparser.ConfigParser()
+    utils.load_config(config, args.config)
+    if args.level:
+        tf.logging.set_verbosity(args.level.upper())
+    main()
+
+
+\end{lstlisting}
+
+\pagebreak
+\begin{lstlisting}
+//camera_demo_detection.py
+import argparse
+import configparser
+import importlib
+import cv2
+import numpy as np
+import tensorflow as tf
+import tensorflow.contrib.slim as slim
+import utils.postprocess
+
+
+def main():
+    model = config.get('config', 'model')
+    yolo = importlib.import_module('model.' + model)
+    width = config.getint(model, 'width')
+    height = config.getint(model, 'height')
+    preprocess = getattr(importlib.import_module('detect'), args.preprocess)
+    with tf.Session() as sess:
+        ph_image = tf.placeholder(tf.float32, [1, height, width, 3], name='ph_image')
+        builder = yolo.Builder(args, config)
+        builder(ph_image)
+        global_step = tf.contrib.framework.get_or_create_global_step()
+        model_path = tf.train.latest_checkpoint(utils.get_logdir(config))
+        tf.logging.info('load ' + model_path)
+        slim.assign_from_checkpoint_fn(model_path, tf.global_variables())(sess)
+        tf.logging.info('global_step=%d' % sess.run(global_step))
+        tensors = [builder.model.conf, builder.model.xy_min, builder.model.xy_max]
+        tensors = [tf.check_numerics(t, t.op.name) for t in tensors]
+        cap = cv2.VideoCapture(0)
+        try:
+            while True:
+                ret, image_bgr = cap.read()
+                assert ret
+                image_height, image_width, _ = image_bgr.shape
+                scale = [image_width / builder.model.cell_width, image_height / builder.model.cell_height]
+                image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+                image_std = np.expand_dims(preprocess(cv2.resize(image_rgb, (width, height))).astype(np.float32), 0)
+                feed_dict = {ph_image: image_std}
+                conf, xy_min, xy_max = sess.run(tensors, feed_dict)
+                boxes = utils.postprocess.non_max_suppress(conf[0], xy_min[0], xy_max[0], args.threshold, args.threshold_iou)
+                for _conf, _xy_min, _xy_max in boxes:
+                    index = np.argmax(_conf)
+                    if _conf[index] > args.threshold:
+                        _xy_min = (_xy_min * scale).astype(np.int)
+                        _xy_max = (_xy_max * scale).astype(np.int)
+                        cv2.rectangle(image_bgr, tuple(_xy_min), tuple(_xy_max), (255, 0, 255), 3)
+                        cv2.putText(image_bgr, builder.names[index] + ' (%.1f%%)' % (_conf[index] * 100), tuple(_xy_min), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 2)
+                cv2.imshow('detection', image_bgr)
+                cv2.waitKey(1)
+        finally:
+            cv2.destroyAllWindows()
+            cap.release()
+
+
+def make_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-c', '--config', nargs='+', default=['config.ini'], help='config file')
+    parser.add_argument('-p', '--preprocess', default='std', help='the preprocess function')
+    parser.add_argument('-t', '--threshold', type=float, default=0.3)
+    parser.add_argument('--threshold_iou', type=float, default=0.4, help='IoU threshold')
+    parser.add_argument('--level', default='info', help='logging level')
+    return parser.parse_args()
+
+if __name__ == '__main__':
+    args = make_args()
+    config = configparser.ConfigParser()
+    utils.load_config(config, args.config)
+    if args.level:
+        tf.logging.set_verbosity(args.level.upper())
+    main()
+
+
+\end{lstlisting}

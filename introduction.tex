@@ -1,0 +1,55 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  New template code for TAMU Theses and Dissertations starting Fall 2012.  
+%  For more info about this template or the 
+%  TAMU LaTeX User's Group, see http://www.howdy.me/.
+%
+%  Author: Wendy Lynn Turner 
+%	 Version 1.0 
+%  Last updated 8/5/2012
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                           SECTION I
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagestyle{myheadings}
+%\pagestyle{plain}
+\pagenumbering{arabic} % Arabic numerals
+\setcounter{page}{1}
+
+
+\chapter{\uppercase {Introduction}}
+\let\thefootnote\relax\footnotetext{This thesis follows the style of IEEE.}
+In recent years, Unmanned aerial vehicles (UAVs), commonly known as drones, have gained a lot of popularity in the research area. Drones are  remotely piloted aircrafts, which  were formerly developed for military purposes to perform tasks that could be tough to achieve for human pilots. Today, we use them (drrones) for different applications such as recording tool performing aerial shots for movies and rescue missions, security video surveillance, 3D-Mapping, package delivery, agriculture as well as many other scientific purposes.
+
+This thesis presents the design and development work of DeepFlow, an object detection and tracking system using an onboard camera from an Unmanned Areal Vehicles (UAVs). A 3DR SOLO drone, using a moving gimbal and an onboard camera to visually detect and track objects will be used. We will develop a system to automatically control our drone to follow the motion of the object that is being tracked. The UAV should be able to track a person/object and follow it by recreating, in real time, the same trajectory that this person/object performs without the help of a GPS.
+
+
+%A landscape figure should be shown below. 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{sidewaysfigure}[H]
+%\centering
+%\includegraphics[scale=.50]{figures/Penguins.jpg}
+%\caption{TAMU figure - This is an example of a long figure title with a landscape figure.  Figure titles need to be single-spaced within and double spaced between in the list of figures.}
+%\label{fig:tamu-fig1-1}
+%\end{sidewaysfigure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%\subsection{This is a Very Long Subsection Title This is a Very Long Subsection Title}
+
+\section{Motivations}
+
+%\subsection{Big Data and Scalability}
+
+An Unmanned Aerial Vehicle (UAV), or drone, is a device originally designed to be piloted remotely, thus avoiding various problems and risks that could be experienced by an on-board human pilots. Currently, these vehicles have grown in popularity and have had to acquire innovative control systems to be able to make their piloting simple. Therefore, several sensors  have already incorporated into these vehicles. The camera is one of those sensors. The camera transmits a large and useful amount of information in comparison with an inertial or an ultrasonic sensor. This led to think about ways of being able to express commands by using some kind of visual stimulus. Taking into account that the drone is an air vehicle, it is more interesting and simple to modify the content that lies beneath it, and using a vertical camera the vehicle could receive this information and process it to make air navigation autonomous,thus many tasks could be simplified and met more easily and users could then focus our attention to the particular work of the vehicle or the information it receives. Drones could also be used by a larger audience as the user would not need to be an experienced user to control the aircraft. Users could capture specific aerial images of buildings, architectures or geographic formations, and certain jobs such as data monitoring for weather forecasting or video recording would be simplified.
+
+
+\section{Objectives}
+
+In this thesis, it is intended to create a computer vision system called DeepFlow using a drone and its onboard vertical camera to perform object detection and classification, and that when one of these objects is detected by the computer, to establish a series of previously programmed instructions such as tracking it when it moves. To achieve the goal of this thesis, we have to take into account the quality of the objects to be detected and track in terms of texture, its size, changes in lighting, modifications in the scale of the objects, loss of information due to problems in the communication and the way in which the drone is going to be controlled. Our focus is not on the mechanism to control  the vehicle since for our convenience we use an Application Programming Interface (API) or Software Development Kit (SDK) provided by the 3D Robotics but the integration of this API with DeepFlow, our deep learning object detection and tracking system since this SDK  allows us to specify velocity values, access to the gimbal and camera, this topic will be approached later in this thesis. For now we will concentrate our focus on the structure of the method used to develop our application.
+
+
+
+

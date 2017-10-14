@@ -1,0 +1,37 @@
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%  New template code for TAMU Theses and Dissertations starting Fall 2012.  
+%  For more info about this template or the 
+%  TAMU LaTeX User's Group, see http://www.howdy.me/.
+%
+%  Author: Wendy Lynn Turner 
+%	 Version 1.0 
+%  Last updated 8/5/2012
+%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%                           SECTION VI
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+\chapter{\uppercase{Conclusions and Future Work}}
+
+The thesis presents the implementation and adaptation of an object detection and tracking system using 3DRobotics Solo Drone. For each algorithm, we have tried to analyze the ability and the functioning of how they act in a drone, ie, these algorithms were evaluated to determine if the use of a drone was conceptually feasible to perform any of these functions and thus to choose how to form the system of autonomous behavior more suitable for it.
+
+During the course of the project, there have been several drawbacks and limitations. Initially, we use a DJI Matrice 100 drone which does not seem to be the most suitable vehicle for this type of behavior within closed spaces, because of both, its physiognomy and the materials  which it is made with. However, when it comes to flying, it is quite sensitive to external factors. The sensor itself that stabilizes the drone, is very affected although it is not receiving any command of movement. We switched to 3DRobotics Solo Drone which seemed to be better but at the time of implementing and testing the algorithms, there were many problems, such as difficulties accessing the onboard camera from the central PC connected to the drone, because there were exceptions of sockets where it didn't find the /video0/ function. These problems caused the drone to reboot everytime you tried to run a script to access the main camera.
+
+Object recognition and Tracking is not a trivial task when incorporating the necessary mechanisms that artificial intelligence needs. Even if we use the best libraries that incorporate the faster and more efficient methods would be possible to achieve. And is that each program has its own requirements, the most important is to have a good focus on the operation of algorithms based on tests, rather than a strictly theoretical basis.
+
+Looking back in time, there are certain things that could have been approached differently in order to get better results at the end of the project, such as a more comprehensive planning phase. Given that my experience in the field of computer vision was very light, it has taken me a great deal of effort and time to learn and read about OpenCV, OpenTLD, TLD, TensorFlow,  and everything that the theory of computer vision entails. In addition to learning, incorporating, and adapting mechanisms of robotics in a drone, which requires to fully understand how their sensors and associated invariant properties work. However, we will continue to work hard to improve our algorithm results in the mobile platforms increase the number of frames and how fast it can detect and track an object as well as improving frame rate in a workstation working only with a CPU.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%\begin{figure}[H]
+%\centering
+%\includegraphics[scale=.50]{figures/Penguins.jpg}
+%\caption{Another TAMU figure}
+%\label{fig:tamu-fig4}
+%\end{figure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
